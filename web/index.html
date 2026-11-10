@@ -1044,5 +1044,18 @@ theme();
 </script>
 <script type="module" src="rust-bridge.js"></script>
 <script src="perf-patch.js"></script>
+ <!-- lut-studio-white-default -->
+<script>
+(()=>{
+const W='#ffffff';
+D.ac=W;
+if(!S.acu)S.ac=W;
+$('#sAc').addEventListener('input',()=>{S.acu=1;save()});
+$('#sw').insertAdjacentHTML('afterbegin',`<button data-c="${W}" style="background:${W}" aria-label="Trắng (mặc định)"></button>`);
+$('#sw').addEventListener('click',e=>{const c=e.target.dataset.c;if(!c)return;S.acu=c.toLowerCase()==W?0:1;save()},true);
+$('#sAc').value=S.ac;
+theme();save();
+})();
+</script>
 </body>
 </html>
