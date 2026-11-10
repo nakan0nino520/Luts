@@ -9,7 +9,7 @@
 body.light{--tx:#14141a;--bg:#e9ecf4;--gl:rgba(255,255,255,.55)}
 *{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
 html{font-size:clamp(14px,.5vw + 12px,21px);-webkit-text-size-adjust:100%;text-size-adjust:100%}
-body{margin:0;min-height:100vh;min-height:100dvh;color:var(--tx);font-family:var(--font);background:radial-gradient(60% 45% at 12% 8%,color-mix(in srgb,var(--ac) 60%,transparent),transparent),radial-gradient(45% 40% at 92% 28%,#bf5af277,transparent),radial-gradient(60% 45% at 50% 105%,#30d1a055,transparent),var(--bg);background-attachment:fixed;padding:env(safe-area-inset-top) env(safe-area-inset-right) 0 env(safe-area-inset-left);overflow-x:hidden}
+body{margin:0;min-height:100vh;min-height:100dvh;color:var(--tx);font-family:var(--font);background:radial-gradient(60% 45% at 12% 8%,color-mix(in srgb,var(--ac) 60%,transparent),transparent),radial-gradient(45% 40% at 92% 28%,#bf5af277,transparent),radial-gradient(60% 45% at 50% 105%,transparent),var(--bg);background-attachment:fixed;padding:env(safe-area-inset-top) env(safe-area-inset-right) 0 env(safe-area-inset-left);overflow-x:hidden}
 body.nofs{overflow:hidden}
 #bg,#bg2{position:fixed;inset:0;z-index:-2;display:none;background-position:center;background-repeat:no-repeat;opacity:var(--bgo)}
 #bg2{z-index:-3;background-size:cover;filter:blur(40px) brightness(.8);transform:scale(1.2)}
@@ -996,7 +996,53 @@ tb.addEventListener('click',ti);ti();
 save();syncUI();i18n();theme();all();
 })();
 </script>
- <script type="module" src="rust-bridge.js"></script>
+<!-- lut-studio-nopink -->
+<style>
+body,body.light{background:
+ radial-gradient(60% 45% at 12% 8%,color-mix(in srgb,var(--ac) 60%,transparent),transparent),
+ radial-gradient(60% 45% at 50% 105%,transparent),
+ var(--bg);
+ background-attachment:fixed}
+</style>
+<script>
+(()=>{
+const lum=h=>{const c=[1,3,5].map(i=>{const v=parseInt(h.substr(i,2),16)/255;return v<=.03928?v/12.92:((v+.055)/1.055)**2.4});return .2126*c[0]+.7152*c[1]+.0722*c[2]};
+const cr=(a,b)=>{const x=lum(a),y=lum(b);return(Math.max(x,y)+.05)/(Math.min(x,y)+.05)};
+const _t=theme;
+theme=function(){
+ const old=S.tx;
+ if(!(bgUrl&&S.auto)&&cr(S.tx,S.bg)<3)S.tx=lum(S.bg)<.4?'#f5f5f7':'#14141a';
+ $('#sTx').value=S.tx;_t();if(S.tx!==old)save()};
+theme();
+})();
+</script>
+<style>
+body:not(.noglass) #stage.playing .glass{
+ background:linear-gradient(135deg,rgba(255,255,255,.22),rgba(255,255,255,.05) 45%,rgba(255,255,255,.12));
+ background-color:rgba(255,255,255,.05);
+ -webkit-backdrop-filter:blur(var(--lgb,24px)) saturate(200%) brightness(1.08);
+ backdrop-filter:blur(var(--lgb,24px)) saturate(200%) brightness(1.08)}
+body.light:not(.noglass) #stage.playing .glass{background-color:rgba(255,255,255,.42)}
+</style>
+<!-- lut-studio-contrast -->
+<style>
+.pill,.pill *,.sic,#orig{color:var(--on,#fff)}
+.pill.dng,.pill.dng *{color:#fff}
+.seg button.on,.tabs button.on{color:var(--acx,var(--ac))}
+</style>
+<script>
+(()=>{
+const lum=h=>{if(!/^#[0-9a-f]{6}$/i.test(h))return 0;const c=[1,3,5].map(i=>{const v=parseInt(h.substr(i,2),16)/255;return v<=.03928?v/12.92:((v+.055)/1.055)**2.4});return .2126*c[0]+.7152*c[1]+.0722*c[2]};
+const _t=theme;
+theme=function(){
+ _t();
+ const r=document.documentElement.style,la=lum(S.ac),light=S.theme=='light';
+ r.setProperty('--on',la>.5?'#111114':'#ffffff');
+ r.setProperty('--acx',light?(la>.6?'#14141a':S.ac):(la<.18?'#f5f5f7':S.ac))};
+theme();
+})();
+</script>
+<script type="module" src="rust-bridge.js"></script>
 <script src="perf-patch.js"></script>
 </body>
 </html>
