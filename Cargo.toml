@@ -1,0 +1,16 @@
+[package]
+name = "lut-studio"
+version = "0.1.0"
+edition = "2021"
+description = "Lõi xử lý của LUT Studio viết bằng Rust: đọc .cube, ghi MP4/M4A, GIF, WAV, đổi phụ đề"
+license = "MIT"
+
+[lib]
+crate-type = ["cdylib", "rlib"]
+
+[dependencies]
+wasm-bindgen = "0.2"
+
+[profile.release]
+opt-level = "s"
+lto = true
