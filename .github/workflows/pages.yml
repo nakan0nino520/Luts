@@ -1,0 +1,50 @@
+name: Build và đưa lên GitHub Pages
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+concurrency:
+  group: pages
+  cancel-in-progress: true
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Kiểm tra có web/index.html
+        run: test -f web/index.html
+      - uses: dtolnay/rust-toolchain@stable
+        with:
+          targets: wasm32-unknown-unknown
+      - uses: Swatinem/rust-cache@v2
+      - name: Kiểm thử Rust (lỗi cũng không chặn trang)
+        continue-on-error: true
+        run: cargo test
+      - name: Biên dịch lõi Rust ra WebAssembly
+        id: wasm
+        continue-on-error: true
+        run: |
+          cargo build --release --target wasm32-unknown-unknown
+          VER=$(grep -A1 '^name = "wasm-bindgen"$' Cargo.lock | grep '^version' | cut -d'"' -f2)
+          cargo install wasm-bindgen-cli --version "$VER" --locked
+          wasm-bindgen --target web --out-dir web/pkg --out-name lut_studio target/wasm32-unknown-unknown/release/lut_studio.wasm
+      - name: Báo nếu Rust lỗi
+        if: steps.wasm.outcome == 'failure'
+        run: echo "::warning::Không biên dịch được lõi Rust, trang vẫn chạy bằng bản JavaScript dự phòng."
+      - uses: actions/configure-pages@v5
+      - uses: actions/upload-pages-artifact@v3
+        with:
+          path: web
+  deploy:
+    needs: build
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - id: deployment
+        uses: actions/deploy-pages@v4
