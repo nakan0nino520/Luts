@@ -7,12 +7,8 @@
     try { fn(); } catch (e) { console.info('perf-patch: bỏ qua mục "' + ten + '"', e); }
   };
 
-  // 1) Kính mờ đặt đè lên video buộc máy làm mờ lại mỗi khung hình. Tắt trong khung xem.
-  step('kính mờ trong khung xem', () => {
-    const st = document.createElement('style');
-    st.textContent = '#stage .glass{-webkit-backdrop-filter:none!important;backdrop-filter:none!important;background:rgba(20,20,26,.62)!important}';
-    document.head.appendChild(st);
-  });
+  // 1) (đã bỏ) Mục tắt kính mờ trong khung xem từng ghi đè !important lên Liquid Glass.
+  //    Kính mờ giờ do index.html điều khiển, bật/tắt theo công tắc Liquid Glass trong Cài đặt.
 
   // 2) Chỉ vẽ lại khi có khung hình video mới (trước đây vẽ theo từng nhịp màn hình, kể cả khi chưa có khung mới).
   step('vẽ theo khung video mới', () => {
